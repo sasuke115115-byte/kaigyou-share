@@ -57,21 +57,28 @@ textarea{min-height:110px;resize:vertical}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:16px;display:none}
 .decided{background:var(--accent);color:#fff;border:0;text-align:center}
 .decided .cname{color:#fff}
+.basebox{background:var(--accent-bg);border-radius:10px;padding:10px 12px;margin:10px 0}
+.basebox .bi{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:4px 0}
+.x{font:inherit;font-size:15px;background:none;border:1px solid var(--line);border-radius:8px;padding:2px 10px;color:var(--sub);cursor:pointer}
+.based{font-size:15px;color:var(--sub);margin:4px 0}
+.acts{display:flex;gap:8px;margin-top:10px}
+.act{flex:1;font:inherit;font-size:16px;font-weight:600;padding:10px 6px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.comments{margin-top:10px;border-top:1px solid var(--line);padding-top:6px}
+.cm{padding:6px 0;font-size:16px}
+.cm .part{font-size:13px;font-weight:600;color:var(--accent);background:var(--accent-bg);border-radius:6px;padding:1px 6px;margin-right:4px}
+.cform{margin-top:8px}
+.parts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.pt{font:inherit;font-size:15px;padding:8px 0;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.pt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600}
+.cform textarea{min-height:80px}
 </style>
 </head>
 <body>
 <main>
 <h1>屋号を決める</h1>
-<p class="sub">日本酒と洋食の店の新しい屋号を、3人で出し合って決める所です。</p>
+<p class="sub">日本酒と洋食の店の新しい屋号を、3人で出し合って決める所です。決め切りは12/5です。</p>
 
-<section id="gate" class="card" hidden>
-  <label for="key">合言葉</label>
-  <input id="key" type="password" autocomplete="current-password" placeholder="LINEで共有した合言葉">
-  <p class="err" id="keyErr" hidden></p>
-  <p style="margin-top:12px"><button class="btn" id="keyBtn">開く</button></p>
-</section>
-
-<div id="app" hidden>
+<div id="app">
   <section class="card">
     <p style="font-weight:600;margin:0 0 8px">あなたは誰ですか</p>
     <div class="people" id="people"></div>
@@ -92,6 +99,7 @@ textarea{min-height:110px;resize:vertical}
   <h2>候補を出す</h2>
   <section class="card">
     <p class="sub" id="formWho">上で自分の名前を選ぶと書けます。</p>
+    <div id="baseBox"></div>
     <label for="fName">候補名</label>
     <input id="fName" maxlength="60" placeholder="店の名前">
     <label for="fYomi">読み方 <small>（カタカナ・ひらがな）</small></label>
@@ -103,7 +111,7 @@ textarea{min-height:110px;resize:vertical}
   </section>
 
   <h2>候補 <span class="sub" id="count"></span></h2>
-  <p class="sub">気に入り度を ◎○△× で付けてください。何度でも付け直せます。</p>
+  <p class="sub">気に入り度を ◎○△× で付けてください。何度でも付け直せます。一部だけ良い時は、コメントで「名前」「読み」「意味」のどこが良いかを書くか、「この案をもとに出す」で組み合わせた案を出してください。</p>
   <div id="list"></div>
 
   <h2>まとめ</h2>
@@ -115,15 +123,16 @@ textarea{min-height:110px;resize:vertical}
 </main>
 <div class="toast" id="toast"></div>
 <script>
-const SCRIPT_URL = '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKevyQsE1Pt0a4VCsMjvqGCC9iQL20wCNZS6-EEDiVGNKj7fOJBDFxUsgIT3TuZwoTuA/exec';
 const PEOPLE = ['向中野', '富士栄', '下原'];
 const MARKS = ['◎', '○', '△', '×'];
+const PARTS = ['全体', '名前', '読み', '意味'];
 const POINT = { '◎': 3, '○': 2, '△': 1, '×': 0 };
 const DEADLINES = [
-  ['2026-12-18', '決め切り（勧め）', '商標の出願、ドメインと Instagram の名前を取る、GビズIDの申請'],
-  ['2027-01-05', '遅くとも', '融資の申し込みの書類（計画書）に書く'],
-  ['2027-02-03', '限界', '予約ページ・メニュー表・看板・HP・開店の告知'],
-  ['2027-02-15', '屋号の欄は空でも出せる', '開業届・屋号つきの口座']
+  ['2026-12-05', '決め切り', '名刺の注文、商標の出願、ドメインと Instagram の名前を取る、GビズIDの申請'],
+  ['2026-12-12', '名刺を配り始める', '物件探しの仲介・売主・業者に渡す（物件探しは12月中に終える）'],
+  ['2027-01-05', '融資の書類', '融資の申し込みの書類（計画書）に書く'],
+  ['2027-02-03', 'お店の準備', '予約ページ・メニュー表・看板・HP・開店の告知']
 ];
 const DEMO = new URLSearchParams(location.search).has('demo');
 const $ = id => document.getElementById(id);
@@ -131,19 +140,24 @@ const store = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 };
-let key = store.get('yago-key') || '';
 let who = store.get('yago-who') || '';
-let data = { candidates: [], votes: {}, decided: { name: '', date: '' } };
+let data = { candidates: [], votes: {}, comments: [], decided: { name: '', date: '' } };
+let bases = [];
+const openComment = {};
+const partSel = {};
+const drafts = {};
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
 function toast(t) { const el = $('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => el.style.display = 'none', 2200); }
 function pIdx(name) { return PEOPLE.indexOf(name); }
+function cand(id) { return data.candidates.find(c => c.id === id); }
 
 function demoApi(body) {
-  const d = JSON.parse(store.get('yago-demo') || '{"candidates":[],"votes":{},"decided":{"name":"","date":""}}');
+  const d = JSON.parse(store.get('yago-demo') || '{"candidates":[],"votes":{},"comments":[],"decided":{"name":"","date":""}}');
   if (body) {
-    if (body.action === 'add') d.candidates.push({ id: 'c' + Date.now(), at: new Date().toISOString(), who: body.who, name: body.name, yomi: body.yomi, imi: body.imi, check: '未', checkMemo: '', removed: false, removedBy: '' });
+    if (body.action === 'add') d.candidates.push({ id: 'c' + Date.now(), at: new Date().toISOString(), who: body.who, name: body.name, yomi: body.yomi, imi: body.imi, check: '未', checkMemo: '', removed: false, removedBy: '', bases: body.bases || [] });
     if (body.action === 'vote') { d.votes[body.id] = d.votes[body.id] || {}; d.votes[body.id][body.who] = body.mark; }
+    if (body.action === 'comment') d.comments.push({ at: new Date().toISOString(), who: body.who, id: body.id, part: body.part, text: body.text });
     if (body.action === 'remove' || body.action === 'restore') { const c = d.candidates.find(x => x.id === body.id); if (c) { c.removed = body.action === 'remove'; c.removedBy = c.removed ? body.who : ''; } }
     store.set('yago-demo', JSON.stringify(d));
   }
@@ -152,15 +166,12 @@ function demoApi(body) {
 
 async function api(body) {
   if (DEMO) return demoApi(body);
-  if (!SCRIPT_URL) throw new Error('準備中です（受け取り役がまだつながっていません）');
-  let res;
-  if (body) {
-    res = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ key }, body)) });
-  } else {
-    res = await fetch(SCRIPT_URL + '?key=' + encodeURIComponent(key));
-  }
+  const res = body
+    ? await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+    : await fetch(SCRIPT_URL + '?t=' + Date.now());
   const j = await res.json();
-  if (!j.ok) { const e = new Error(j.error === 'key' ? '合言葉が違います' : '送れませんでした（' + j.error + '）'); e.code = j.error; throw e; }
+  if (!j.ok) throw new Error('送れませんでした（' + j.error + '）');
+  j.comments = j.comments || [];
   return j;
 }
 
@@ -180,6 +191,12 @@ function renderDeadlines() {
   }).join('');
 }
 
+function renderBases() {
+  bases = bases.filter(id => cand(id));
+  if (!bases.length) { $('baseBox').innerHTML = ''; return; }
+  $('baseBox').innerHTML = `<div class="basebox"><b>もとにする案</b>${bases.map(id => { const c = cand(id); return `<div class="bi"><div><b>${esc(c.name)}</b>（${esc(c.who)}）${c.imi ? '<br><span class="sub">' + esc(c.imi) + '</span>' : ''}</div><button class="x" data-unbase="${esc(id)}">外す</button></div>`; }).join('')}<p class="sub" style="margin:4px 0 0">良い所を組み合わせて、下に新しい案を書いてください。</p></div>`;
+}
+
 function score(id) { const v = data.votes[id] || {}; return Object.values(v).reduce((s, m) => s + (POINT[m] ?? 0), 0); }
 
 function renderList() {
@@ -191,14 +208,30 @@ function renderList() {
     const mine = v[who] || '';
     const chk = c.check === '○' ? ['ok', '調べ：○ 使えそう'] : c.check === '×' ? ['ng', '調べ：× 使えない'] : ['wait', '調べ：まだ（Claude が調べます）'];
     const others = PEOPLE.map(p => `${esc(p)} ${esc(v[p] || '－')}`).join('　');
-    return `<section class="card ${c.removed || c.check === '×' ? 'removed' : ''}">
+    const based = (c.bases || []).map(id => cand(id)).filter(Boolean);
+    const cms = data.comments.filter(m => m.id === c.id);
+    const part = partSel[c.id] || '全体';
+    return `<section class="card ${c.removed || c.check === '×' ? 'removed' : ''}" id="card-${esc(c.id)}">
       <span class="chip c${pIdx(c.who)}">${esc(c.who)}の案</span>
       <p class="cname">${esc(c.name)}</p>
       ${c.yomi ? `<p class="yomi">${esc(c.yomi)}</p>` : ''}
+      ${based.length ? `<p class="based">もとにした案：${based.map(b => esc(b.name) + '（' + esc(b.who) + '）').join(' ＋ ')}</p>` : ''}
       ${c.imi ? `<p class="imi">${esc(c.imi)}</p>` : ''}
       <p class="check ${chk[0]}">${chk[1]}${c.checkMemo ? '<br><span style="font-weight:400">' + esc(c.checkMemo) + '</span>' : ''}</p>
       ${c.removed ? `<p class="sub">${esc(c.removedBy)}さんが外しました</p>` : `<div class="marks">${MARKS.map(m => `<button class="mark" aria-pressed="${m === mine}" aria-label="${m}を付ける" data-vote="${esc(c.id)}" data-m="${m}">${m}</button>`).join('')}</div>`}
       <p class="others">${others}</p>
+      <div class="acts">
+        <button class="act" data-cmt="${esc(c.id)}">コメント${cms.length ? '（' + cms.length + '）' : 'を書く'}</button>
+        ${c.removed ? '' : `<button class="act" data-base="${esc(c.id)}">${bases.includes(c.id) ? 'もとにする案に入っています' : 'この案をもとに出す'}</button>`}
+      </div>
+      ${cms.length ? `<div class="comments">${cms.map(m => `<div class="cm"><span class="part">${esc(m.part)}</span><b>${esc(m.who)}</b>：${esc(m.text)}</div>`).join('')}</div>` : ''}
+      ${openComment[c.id] ? `<div class="cform">
+        <p class="sub" style="margin:0 0 6px">どこについてのコメントですか</p>
+        <div class="parts">${PARTS.map(p => `<button class="pt" aria-pressed="${p === part}" data-part="${p}" data-pid="${esc(c.id)}">${p}</button>`).join('')}</div>
+        <textarea maxlength="500" data-ctext="${esc(c.id)}" placeholder="例：名前の響きは良いが、意味は別の案の方が好き">${esc(drafts[c.id] || '')}</textarea>
+        <p class="err" data-cerr="${esc(c.id)}" hidden></p>
+        <p style="margin-top:8px"><button class="btn" data-csend="${esc(c.id)}">コメントを送る</button></p>
+      </div>` : ''}
       ${c.who === who ? `<button class="small-link" data-${c.removed ? 'restore' : 'remove'}="${esc(c.id)}">${c.removed ? '外したのを戻す' : 'この案を外す'}</button>` : ''}
     </section>`;
   }).join('');
@@ -214,33 +247,21 @@ function renderSummary() {
   $('decidedBox').innerHTML = data.decided && data.decided.name ? `<section class="card decided"><p>決めた屋号</p><p class="cname">${esc(data.decided.name)}</p></section>` : '';
 }
 
-function renderAll() { renderPeople(); renderDeadlines(); renderList(); renderSummary(); }
+function renderAll() { renderPeople(); renderDeadlines(); renderBases(); renderList(); renderSummary(); }
 
 async function load(quiet) {
-  try { data = await api(); renderAll(); if (!quiet) toast('最新にしました'); return true; }
-  catch (e) {
-    if (e.code === 'key') { showGate('合言葉が違います'); return false; }
-    renderAll(); toast(e.message); return false;
-  }
+  try { data = await api(); renderAll(); if (!quiet) toast('最新にしました'); }
+  catch (e) { renderAll(); toast('読み込めませんでした。電波を確かめて「最新にする」を押してください'); }
 }
-
-function showGate(msg) {
-  $('app').hidden = true; $('gate').hidden = false;
-  $('keyErr').hidden = !msg; $('keyErr').textContent = msg || '';
-}
-
-$('keyBtn').addEventListener('click', async () => {
-  const k = $('key').value.trim();
-  if (!k) { $('keyErr').hidden = false; $('keyErr').textContent = '合言葉を入れてください'; return; }
-  key = k; store.set('yago-key', k);
-  $('gate').hidden = true; $('app').hidden = false;
-  await load(true);
-});
-$('key').addEventListener('input', () => { $('keyErr').hidden = true; });
 
 $('people').addEventListener('click', e => {
   const b = e.target.closest('[data-p]'); if (!b) return;
   who = b.dataset.p; store.set('yago-who', who); renderAll();
+});
+
+$('baseBox').addEventListener('click', e => {
+  const b = e.target.closest('[data-unbase]'); if (!b) return;
+  bases = bases.filter(id => id !== b.dataset.unbase); renderBases(); renderList();
 });
 
 ['fName', 'fYomi', 'fImi'].forEach(id => $(id).addEventListener('input', () => { $('formErr').hidden = true; }));
@@ -251,18 +272,37 @@ $('sendBtn').addEventListener('click', async () => {
   if (!name) { err.hidden = false; err.textContent = '候補名を入れてください'; return; }
   $('sendBtn').disabled = true;
   try {
-    data = await api({ action: 'add', who, name, yomi: $('fYomi').value.trim(), imi: $('fImi').value.trim() });
-    $('fName').value = ''; $('fYomi').value = ''; $('fImi').value = '';
+    data = await api({ action: 'add', who, name, yomi: $('fYomi').value.trim(), imi: $('fImi').value.trim(), bases });
+    $('fName').value = ''; $('fYomi').value = ''; $('fImi').value = ''; bases = [];
     renderAll(); toast('候補を出しました');
   } catch (e) { err.hidden = false; err.textContent = e.message; }
   $('sendBtn').disabled = false;
 });
 
+$('list').addEventListener('input', e => {
+  const t = e.target.closest('[data-ctext]'); if (!t) return;
+  drafts[t.dataset.ctext] = t.value;
+  const er = document.querySelector(`[data-cerr="${t.dataset.ctext}"]`); if (er) er.hidden = true;
+});
+
 $('list').addEventListener('click', async e => {
-  const b = e.target.closest('[data-vote],[data-remove],[data-restore]'); if (!b) return;
+  const b = e.target.closest('[data-vote],[data-remove],[data-restore],[data-cmt],[data-part],[data-csend],[data-base]'); if (!b) return;
+  if (b.dataset.cmt) { openComment[b.dataset.cmt] = !openComment[b.dataset.cmt]; renderList(); return; }
+  if (b.dataset.part) { partSel[b.dataset.pid] = b.dataset.part; renderList(); return; }
+  if (b.dataset.base) {
+    if (!bases.includes(b.dataset.base)) bases.push(b.dataset.base);
+    renderBases(); renderList();
+    $('baseBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
   if (!who) { toast('先に自分の名前を選んでください'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
   let body;
-  if (b.dataset.vote) {
+  if (b.dataset.csend) {
+    const id = b.dataset.csend;
+    const text = (drafts[id] || '').trim();
+    if (!text) { const er = document.querySelector(`[data-cerr="${id}"]`); er.hidden = false; er.textContent = 'コメントを入れてください'; return; }
+    body = { action: 'comment', who, id, part: partSel[id] || '全体', text };
+  } else if (b.dataset.vote) {
     const cur = (data.votes[b.dataset.vote] || {})[who] || '';
     body = { action: 'vote', who, id: b.dataset.vote, mark: cur === b.dataset.m ? '' : b.dataset.m };
   } else if (b.dataset.remove) {
@@ -270,14 +310,18 @@ $('list').addEventListener('click', async e => {
     body = { action: 'remove', who, id: b.dataset.remove };
   } else body = { action: 'restore', who, id: b.dataset.restore };
   b.disabled = true;
-  try { data = await api(body); renderAll(); } catch (er) { toast(er.message); b.disabled = false; }
+  try {
+    data = await api(body);
+    if (body.action === 'comment') { drafts[body.id] = ''; openComment[body.id] = false; toast('コメントを送りました'); }
+    renderAll();
+  } catch (er) { toast(er.message); b.disabled = false; }
 });
 
 $('reloadBtn').addEventListener('click', () => load(false));
-document.addEventListener('visibilitychange', () => { if (!document.hidden && key && !$('app').hidden) load(true); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load(true); });
 
 renderAll();
-if (DEMO || key) { $('app').hidden = false; load(true); } else showGate();
+load(true);
 </script>
 </body>
 </html>

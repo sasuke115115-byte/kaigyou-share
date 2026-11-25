@@ -131,6 +131,7 @@ table.money td:first-child { white-space: nowrap; }
 tr.sum td { font-weight: 700; border-top: 2px solid var(--ink); }
 .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .cols > div { min-width: 0; }
+.page > *, .block > * { min-width: 0; }   /* 中の表が広い時に、ページごと横にはみ出さない（スマホ。2026-11-25） */
 .formula { font-size: .84rem; color: var(--muted); margin: 6px 0 0; }
 
 .photos { display: grid; gap: 12px; }
@@ -170,6 +171,11 @@ figcaption b { display: block; font-size: .9rem; }
   .gaiyou th { width: 5.4em; }
   .list tbody th { width: 5.6em; white-space: normal; }
   table.money td:first-child { white-space: normal; }
+  .list thead th { white-space: normal; }   /* 表の見出しを折り返して画面の幅に収める（2026-11-25） */
+  .list th, .list td { padding: 6px; }
+  .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }   /* 1枚目の小さい写真は2列（3列だと約100pxで小さすぎる） */
+  .shots .shot:not(.main):last-child:nth-child(even) { grid-column: 1 / -1; }
+  .shot figcaption, figcaption { font-size: .86rem; }
   table.cards thead { display: none; }
   table.cards tr { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
   table.cards td { border: 0; padding: 0; }
@@ -269,13 +275,13 @@ const BUKKEN = {
   ],
   "cover": {
     "main": {
-      "src": "225242/photo-01.jpg?v=mwvjzlqh",
+      "src": "225242/photo-01.jpg?v=mwvk61pj",
       "t": "建物の外観（交差点の角）"
     },
     "small": [],
     "plans": [
       {
-        "src": "225242/photo-02.jpg?v=mwvjzlqh",
+        "src": "225242/photo-02.jpg?v=mwvk61pj",
         "t": "1階 間取り（道路の向きは図面に無い）",
         "ar": "760 / 364"
       }
@@ -361,7 +367,7 @@ const BUKKEN = {
       "note": "掲載の写真は外観1枚と図面1枚だけ。店内と厨房の写真は無い",
       "photos": [
         {
-          "src": "225242/photo-01.jpg?v=mwvjzlqh",
+          "src": "225242/photo-01.jpg?v=mwvk61pj",
           "t": "建物の外観",
           "c": "横断歩道のある交差点の角に建つ建物の1階。角の入口はガラス扉で、扉の右の壁際に酒瓶を並べた棚が見える。入口のすぐ前に、道路から1段高い段がある"
         }
@@ -373,7 +379,7 @@ const BUKKEN = {
       "note": "掲載の図面。道路の向きは図面に書いていない",
       "photos": [
         {
-          "src": "225242/photo-02.jpg?v=mwvjzlqh",
+          "src": "225242/photo-02.jpg?v=mwvk61pj",
           "t": "1階",
           "c": "左側に「出入口」。奥（上）と手前（下）の2つの客席で、卓と丸い椅子を並べた配置。中ほどの上に男女のトイレ。右側が厨房で、冷蔵庫・作業台・流しの記号が並び、右下にもう1つ出入口がある",
           "ar": "760 / 364"
@@ -383,12 +389,12 @@ const BUKKEN = {
     }
   ],
   "aerial": {
-    "src": "225242/map-station.jpg?v=mwvjzlqh",
+    "src": "225242/map-station.jpg?v=mwvk61pj",
     "t": "地図（Google マップ。赤いピンが店、青い丸がJR横浜駅。点線は直線の距離）"
   },
   "street": [
     {
-      "src": "225242/sv-north.jpg?v=mwvjzlqh",
+      "src": "225242/sv-north.jpg?v=mwvk61pj",
       "t": "店のそばの道から北",
       "c": "2025年8月の撮影",
       "clip": [
@@ -401,7 +407,7 @@ const BUKKEN = {
       ]
     },
     {
-      "src": "225242/sv-east.jpg?v=mwvjzlqh",
+      "src": "225242/sv-east.jpg?v=mwvk61pj",
       "t": "店のそばの道から東",
       "c": "2025年8月の撮影",
       "clip": [
@@ -414,7 +420,7 @@ const BUKKEN = {
       ]
     },
     {
-      "src": "225242/sv-south.jpg?v=mwvjzlqh",
+      "src": "225242/sv-south.jpg?v=mwvk61pj",
       "t": "店のそばの道から南",
       "c": "2025年8月の撮影",
       "clip": [
@@ -427,7 +433,7 @@ const BUKKEN = {
       ]
     },
     {
-      "src": "225242/sv-west.jpg?v=mwvjzlqh",
+      "src": "225242/sv-west.jpg?v=mwvk61pj",
       "t": "店のそばの道から西",
       "c": "2025年8月の撮影",
       "clip": [

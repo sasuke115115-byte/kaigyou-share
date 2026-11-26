@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>服のリメイクのアンケート｜East Side Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* 服代の聞き取りの記入シート（2026-11-26）。知り合いの女性が自分のスマホで答える。合言葉なし・ログインなし
+   答えは Google スプレッドシート「ESS 服代の聞き取り」の「答え」に1行ずつ入り、「まとめ」で自動で集計される
+   送り先（受付の URL）は下の ENDPOINT。作り方は remake/服代の聞き方.md の「記入シート」
+   見た目は事業資料と同じ：シャンブレーの地・インディゴの文字・デニム・縫い糸 */
+:root {
+  --bg: #EEF0F3; --paper: #FBFBF9; --ink: #1B2233; --muted: #5A6275; --line: #D3D8E1;
+  --denim: #2F4A7A; --denim-soft: #DDE4F0; --thread: #C9A15A; --ok: #215C42; --ok-soft: #DDEFE6; --ng: #A3312B;
+  --font-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-body: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #121621; --paper: #1B2130; --ink: #E7EAF1; --muted: #A3AABB; --line: #2E3648;
+  --denim: #8FAEE3; --denim-soft: #26324A; --thread: #D6B26C; --ok: #A6E3C3; --ok-soft: #1D3A2E; --ng: #F2A49E; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7; }
+main { max-width: 560px; margin: 0 auto; padding-block: 0 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { background: var(--ink); color: var(--paper); border-bottom: 2px dashed var(--thread);
+  padding-block: calc(env(safe-area-inset-top, 0px) + 22px) 20px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header .in { max-width: 560px; margin: 0 auto; }
+.brand { font-size: .72rem; letter-spacing: .18em; opacity: .75; margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; line-height: 1.4; margin: 4px 0 8px; word-break: keep-all; overflow-wrap: anywhere; }
+header p { margin: 0; font-size: .9rem; opacity: .9; }
+.q { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin-top: 14px; }
+.q legend, .q > label.t { display: block; font-weight: 700; font-size: 1rem; padding: 0; margin-bottom: 10px; }
+fieldset.q { min-width: 0; }
+fieldset.q > legend { float: left; width: 100%; } /* 見出しを枠の中に入れる */
+fieldset.q > legend + * { clear: both; }
+.no { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--denim); color: var(--paper); font-size: .8rem; margin-right: 6px; vertical-align: .1em; }
+.hint { color: var(--muted); font-size: .84rem; margin: -4px 0 10px; }
+.opts { display: grid; gap: 8px; }
+.opts.two { grid-template-columns: 1fr 1fr; }
+.opt { position: relative; }
+.opt input { position: absolute; opacity: 0; pointer-events: none; }
+.opt span { display: block; border: 1.5px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; background: var(--bg); line-height: 1.4; }
+.opt input:checked + span { border-color: var(--denim); background: var(--denim-soft); font-weight: 700; color: var(--denim); }
+.opt input:focus-visible + span { outline: 2px solid var(--denim); outline-offset: 2px; }
+.num { display: flex; align-items: center; gap: 10px; }
+.num input { font: inherit; font-size: 1.2rem; width: 6em; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+textarea, input[type=text] { font: inherit; width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+textarea { min-height: 5.5em; resize: vertical; }
+.example { display: flex; gap: 10px; align-items: center; background: var(--denim-soft); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: .88rem; }
+.example a { color: var(--denim); font-weight: 700; }
+.optional { font-weight: 400; font-size: .78rem; color: var(--muted); margin-left: 4px; }
+.send { width: 100%; margin-top: 20px; font: inherit; font-weight: 700; font-size: 1.05rem; padding: 14px; border: 0; border-radius: 10px; background: var(--denim); color: var(--paper); cursor: pointer; }
+.send:disabled { opacity: .6; cursor: wait; }
+.err { color: var(--ng); font-size: .9rem; margin: 10px 0 0; min-height: 1.4em; }
+.q.miss { border-color: var(--ng); }
+.done { text-align: center; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 32px 20px; margin-top: 20px; }
+.done h2 { font-family: var(--font-display); margin: 0 0 8px; }
+.done .mark { width: 56px; height: 56px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; margin: 0 auto 12px; font-size: 1.6rem; font-weight: 700; }
+.foot { color: var(--muted); font-size: .78rem; margin-top: 18px; }
+.hp { position: absolute; left: -9999px; }
+</style>
+</head><body>
+<header><div class="in">
+  <p class="brand">EAST SIDE STORY</p>
+  <h1>服のリメイクについての<wbr>アンケート</h1>
+  <p>古着のリメイクの仕事を始める準備をしています。料金を決めるために、5分だけ答えてもらえると助かります。名前を書く欄はありません。</p>
+</div></header>
+<main>
+<form id="f" novalidate>
+  <fieldset class="q" data-k="age"><legend><span class="no">1</span>年代</legend>
+    <div class="opts two" data-name="age"></div></fieldset>
+
+  <fieldset class="q" data-k="q1"><legend><span class="no">2</span>1シーズン（3か月くらい）で、服にだいたいいくら使いますか？</legend>
+    <div class="opts" data-name="q1"></div></fieldset>
+
+  <div class="q" data-k="q2"><label class="t" for="q2"><span class="no">3</span>着ていないけど捨てられない服は、何着くらいありますか？</label>
+    <p class="hint">だいたいで大丈夫です</p>
+    <div class="num"><input id="q2" name="q2" type="number" inputmode="numeric" min="0" max="999" step="1" placeholder="10"><span>着くらい</span></div></div>
+
+  <fieldset class="q" data-k="q3"><legend><span class="no">4</span>着ない服を5着預けると、そのうち2〜3着を新しい服に作り変えて返すサービスがあったら、いくらまでなら頼みたいですか？</legend>
+    <p class="hint">残りの服は、ほかの服の材料に使います</p>
+    <div class="example"><span>できあがりのイメージ →</span><a href="https://sasuke115115-byte.github.io/ess-hp-demo/works.html" target="_blank" rel="noopener">作品の例を見る ↗</a></div>
+    <div class="opts two" data-name="q3"></div></fieldset>
+
+  <fieldset class="q" data-k="q4"><legend><span class="no">5</span>作り変えるなら、どうしたいですか？</legend>
+    <div class="opts" data-name="q4"></div></fieldset>
+
+  <fieldset class="q" data-k="q5"><legend><span class="no">6</span>服を渡すなら、どちらがいいですか？</legend>
+    <div class="opts" data-name="q5"></div></fieldset>
+
+  <fieldset class="q" data-k="q6"><legend><span class="no">7</span>試しに1回やってみる「モニター」も探しています。興味はありますか？</legend>
+    <p class="hint">無理なく、で大丈夫です</p>
+    <div class="opts" data-name="q6"></div></fieldset>
+
+  <div class="q"><label class="t" for="memo">ひとこと<span class="optional">（なくても大丈夫）</span></label>
+    <p class="hint">選んだ理由や、気になること・不安なことを、そのままの言葉で</p>
+    <textarea id="memo" name="memo" maxlength="500"></textarea></div>
+
+  <div class="q" id="nameBox" hidden><label class="t" for="name">呼び名<span class="optional">（モニターの連絡のため。なくても大丈夫）</span></label>
+    <input id="name" name="name" type="text" maxlength="30" autocomplete="nickname"></div>
+
+  <input class="hp" type="text" id="hp" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+  <button type="submit" class="send" id="send">送る</button>
+  <p class="err" id="err" role="alert"></p>
+</form>
+<div class="done" id="done" hidden>
+  <div class="mark" aria-hidden="true">✓</div>
+  <h2>ありがとうございました</h2>
+  <p>答えを受け取りました。料金とサービスの形を決めるのに使わせてもらいます。</p>
+</div>
+<p class="foot">答えは、料金とサービスの形を決めるためだけに使います。ほかの人に見せることはありません。</p>
+</main>
+<script>
+// 送り先：Google スプレッドシートにつないだ受付（Apps Script のウェブアプリ）の URL。空のうちは送れない
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbwvHxxD_iGfAYIqe9gY7QX_h9BoqS18aZWmh8GkIwiSDMHufetKs887MtJ88SqOTJpxrw/exec"; // Apps Script「ESS 服代の聞き取り 受付」（2026-11-26）
+// 選ぶ欄。value はスプレッドシートの「答え」の選び方と同じ言葉（変えるとまとめで数えられなくなる）
+const OPTS = {
+  age: ["20代前半", "20代後半", "30代前半", "30代後半", "40代以上"],
+  q1: ["5,000円未満", "5,000円〜1万円", "1〜3万円", "3〜5万円", "5万円以上"],
+  q3: ["頼まない", "1万円未満", "1〜2万円", "2〜3万円", "3〜4万円", "4万円以上"],
+  q4: [["全体の作り変え", "形ごと別の服にしたい"], ["部分の加工", "袖や一部だけ変えたい"], ["両方", "どっちも"], ["分からない", "まだ分からない"]],
+  q5: [["郵送", "郵送がいい"], ["会って渡す", "会って渡したい"], ["どちらでも", "どちらでも"]],
+  q6: [["なってよい", "やってみたい"], ["話を聞きたい", "話を聞いてから決めたい"], ["いいえ", "今回はいい"]],
+};
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+document.querySelectorAll(".opts").forEach((box) => {
+  const n = box.dataset.name;
+  box.innerHTML = OPTS[n].map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o];
+    return `<label class="opt"><input type="radio" name="${n}" value="${esc(v)}"><span>${esc(l)}</span></label>`; }).join("");
+});
+const f = document.getElementById("f"), err = document.getElementById("err"), send = document.getElementById("send");
+// モニターに興味がある人だけ、呼び名の欄を出す
+f.addEventListener("change", () => { const v = val("q6"); document.getElementById("nameBox").hidden = !(v === "なってよい" || v === "話を聞きたい"); });
+const val = (n) => ([...f.querySelectorAll(`input[name=${n}]`)].find((i) => i.checked) || {}).value || "";
+f.addEventListener("submit", async (e) => {
+  e.preventDefault(); err.textContent = "";
+  const d = { age: val("age"), q1: val("q1"), q2: f.q2.value.trim(), q3: val("q3"), q4: val("q4"), q5: val("q5"), q6: val("q6"), memo: f.memo.value.trim(), name: document.getElementById("nameBox").hidden ? "" : document.getElementById("name").value.trim(), hp: document.getElementById("hp").value };
+  const miss = ["age", "q1", "q2", "q3", "q4", "q5", "q6"].filter((k) => !d[k] || (k === "q2" && !/^\d{1,3}$/.test(d[k])));
+  document.querySelectorAll(".q[data-k]").forEach((q) => q.classList.toggle("miss", miss.includes(q.dataset.k)));
+  if (miss.length) { err.textContent = "赤い枠の質問に答えてください。"; document.querySelector(`.q[data-k="${miss[0]}"]`).scrollIntoView({ block: "center" }); return; }
+  if (!ENDPOINT) { err.textContent = "まだ受付の準備中です。少し時間をおいて開き直してください。"; return; }
+  send.disabled = true; send.textContent = "送っています…";
+  try {
+    // 別のサイトの受付へ送るので no-cors（返事は読めないが、届けば表に入る）
+    await fetch(ENDPOINT, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(d) });
+    f.hidden = true; document.getElementById("done").hidden = false; window.scrollTo(0, 0);
+  } catch {
+    err.textContent = "送れませんでした。電波のよい所で、もう一度「送る」を押してください。";
+    send.disabled = false; send.textContent = "送る";
+  }
+});
+</script>
+</body></html>

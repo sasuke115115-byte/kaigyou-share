@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>名前を決める｜East Side Story</title>
+<title>ブランドの名前を決める</title>
 <style>
 :root{--bg:#f6f4ef;--card:#fff;--ink:#1d1d1f;--sub:#5d5d63;--line:#dedad2;--accent:#2f4a7a;--accent-bg:#dde4f0;--warn:#9a5a12;--warn-bg:#fbf1e2;--bad:#a8322d;--bad-bg:#fbeceb;
 --p0:#6a4fb3;--p0bg:#efebfa;--p1:#1f7a8c;--p1bg:#e4f3f6;--p2:#b5562a;--p2bg:#fbece4;--p3:#2f7d3a;--p3bg:#e6f4e8;--p4:#b03a6e;--p4bg:#fae8f0}
@@ -71,20 +71,12 @@ textarea{min-height:110px;resize:vertical}
 .pt{font:inherit;font-size:15px;padding:8px 0;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .pt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600}
 .cform textarea{min-height:80px}
-.target{display:inline-block;font-size:14px;font-weight:600;padding:2px 10px;border-radius:6px;background:var(--accent-bg);color:var(--accent);margin-left:6px}
-.filters{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-.flt{font:inherit;font-size:15px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.flt[aria-pressed=true]{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600}
-.grp-h{font-size:16px;font-weight:700;color:var(--accent);margin:14px 0 2px}
-.grp-h:first-child{margin-top:0}
-.brand{font-size:13px;letter-spacing:.18em;color:var(--sub);margin:8px 0 0}
 </style>
 </head>
 <body>
 <main>
-<p class="brand">EAST SIDE STORY</p>
-<h1>名前を決める</h1>
-<p class="sub">East Side Story の商品・ライン・サービスなどの名前を、4人で出し合って決める所です。案を出す時は「何の名前か」も書いてください。</p>
+<h1>ブランドの名前を決める</h1>
+<p class="sub">アパレルブランド（古着のリメイクと自社商品）の名前を、4人で出し合って決める所です。</p>
 
 <div id="app">
   <section class="card">
@@ -99,18 +91,15 @@ textarea{min-height:110px;resize:vertical}
   <h2>決めるルール</h2>
   <section class="card rule">
     <p><b>ほかの会社が服の商標として登録している名前は使えません。</b>タグや商品ページに使うと、使うのをやめるよう求められ、タグ・写真・ページを作り直すことになります。出た候補は Claude が登録を調べ、かぶる案は外します。</p>
-    <p class="sub" style="margin-top:8px">ほかに見ること：同じ名前のブランドや商品が無い／Instagram・メルカリで探した時に埋もれない／読みやすく覚えやすい／East Side Story の名前と並べて合う</p>
+    <p class="sub" style="margin-top:8px">ほかに見ること：同じ名前のブランドや商品が無い／Instagram・メルカリで探した時に埋もれない／読みやすく覚えやすい／タグやロゴにした時に見栄えがする</p>
   </section>
 
   <h2>候補を出す</h2>
   <section class="card">
     <p class="sub" id="formWho">上で自分の名前を選ぶと書けます。</p>
     <div id="baseBox"></div>
-    <label for="fTarget">何の名前 <small>（例：ポロシャツのライン名、リメイクのサービス名）</small></label>
-    <input id="fTarget" maxlength="40" list="targetList" placeholder="何の名前か">
-    <datalist id="targetList"></datalist>
     <label for="fName">候補名</label>
-    <input id="fName" maxlength="60" placeholder="名前">
+    <input id="fName" maxlength="60" placeholder="ブランドの名前">
     <label for="fYomi">読み方 <small>（カタカナ・ひらがな）</small></label>
     <input id="fYomi" maxlength="60" placeholder="読み方">
     <label for="fImi">意味・込めた思い</label>
@@ -120,13 +109,12 @@ textarea{min-height:110px;resize:vertical}
   </section>
 
   <h2>候補 <span class="sub" id="count"></span></h2>
-  <div class="filters" id="filters"></div>
   <p class="sub">気に入り度を ◎○△× で付けてください。何度でも付け直せます。一部だけ良い時は、コメントで「名前」「読み」「意味」のどこが良いかを書くか、「この案をもとに出す」で組み合わせた案を出してください。</p>
   <div id="list"></div>
 
   <h2>まとめ</h2>
   <section class="card" id="summary"></section>
-  <p class="sub">点数：◎3・○2・△1・×0。「何の名前」ごとに並べます。調べで×の候補と外した候補は入れません。</p>
+  <p class="sub">点数：◎3・○2・△1・×0。調べで×の候補と外した候補は入れません。</p>
 
   <p style="margin-top:24px"><button class="btn ghost" id="reloadBtn">最新にする</button></p>
 </div>
@@ -149,7 +137,6 @@ const store = {
 };
 let who = store.get('ess-namae-who') || '';
 let data = { candidates: [], votes: {}, comments: [], decided: [] };
-let filter = '';
 let bases = [];
 const openComment = {};
 const partSel = {};
@@ -200,7 +187,7 @@ function renderBases() {
 function score(id) { const v = data.votes[id] || {}; return Object.values(v).reduce((s, m) => s + (POINT[m] ?? 0), 0); }
 
 function renderList() {
-  const cs = data.candidates.filter(c => !filter || (c.target || 'その他') === filter).sort((a, b) => (a.removed - b.removed) || ((a.check === '×') - (b.check === '×')) || (a.at < b.at ? 1 : -1));
+  const cs = data.candidates.slice().sort((a, b) => (a.removed - b.removed) || ((a.check === '×') - (b.check === '×')) || (a.at < b.at ? 1 : -1));
   $('count').textContent = cs.length ? '（' + cs.filter(c => !c.removed).length + '件）' : '';
   if (!cs.length) { $('list').innerHTML = '<section class="card"><p class="sub">まだ候補がありません。上から最初の案を出してください。</p></section>'; return; }
   $('list').innerHTML = cs.map(c => {
@@ -212,7 +199,7 @@ function renderList() {
     const cms = data.comments.filter(m => m.id === c.id);
     const part = partSel[c.id] || '全体';
     return `<section class="card ${c.removed || c.check === '×' ? 'removed' : ''}" id="card-${esc(c.id)}">
-      <span class="chip c${pIdx(c.who)}">${esc(c.who)}の案</span><span class="target">${esc(c.target || 'その他')}</span>
+      <span class="chip c${pIdx(c.who)}">${esc(c.who)}の案</span>
       <p class="cname">${esc(c.name)}</p>
       ${c.yomi ? `<p class="yomi">${esc(c.yomi)}</p>` : ''}
       ${based.length ? `<p class="based">もとにした案：${based.map(b => esc(b.name) + '（' + esc(b.who) + '）').join(' ＋ ')}</p>` : ''}
@@ -241,24 +228,14 @@ function renderSummary() {
   const live = data.candidates.filter(c => !c.removed && c.check !== '×');
   if (!live.length) { $('summary').innerHTML = '<p class="sub">候補が出て評価が付くと、ここに順位が出ます。</p>'; }
   else {
-    const groups = [...new Set(live.map(c => c.target || 'その他'))];
-    $('summary').innerHTML = groups.map(g => {
-      const rows = live.filter(c => (c.target || 'その他') === g).map(c => ({ c, s: score(c.id), n: Object.values(data.votes[c.id] || {}).filter(m => m === '◎').length })).sort((a, b) => b.s - a.s || b.n - a.n);
-      return `<p class="grp-h">${esc(g)}</p>` + rows.map((r, i) => `<div class="rank"><div><b>${i + 1}. ${esc(r.c.name)}</b><br><span class="sub">◎ ${r.n}人</span></div><div class="score">${r.s}点</div></div>`).join('');
-    }).join('');
+    const rows = live.map(c => ({ c, s: score(c.id), n: Object.values(data.votes[c.id] || {}).filter(m => m === '◎').length })).sort((a, b) => b.s - a.s || b.n - a.n);
+    $('summary').innerHTML = rows.map((r, i) => `<div class="rank"><div><b>${i + 1}. ${esc(r.c.name)}</b><br><span class="sub">◎ ${r.n}人</span></div><div class="score">${r.s}点</div></div>`).join('');
   }
   const dec = Array.isArray(data.decided) ? data.decided : [];
-  $('decidedBox').innerHTML = dec.length ? `<section class="card decided"><p>決めた名前</p>${dec.map(d => `<p style="margin:10px 0 0">${esc(d.target)}</p><p class="cname">${esc(d.name)}</p>`).join('')}</section>` : '';
+  $('decidedBox').innerHTML = dec.length ? `<section class="card decided"><p>決めたブランドの名前</p><p class="cname">${esc(dec[dec.length - 1].name)}</p></section>` : '';
 }
 
-const targets = () => [...new Set(data.candidates.map(c => c.target || 'その他'))];
-function renderFilters() {
-  const ts = targets();
-  if (filter && !ts.includes(filter)) filter = '';
-  $('targetList').innerHTML = ts.filter(t => t !== 'その他').map(t => `<option value="${esc(t)}">`).join('');
-  $('filters').innerHTML = ts.length > 1 ? ['', ...ts].map(t => `<button class="flt" aria-pressed="${t === filter}" data-flt="${esc(t)}">${t ? esc(t) : 'すべて'}</button>`).join('') : '';
-}
-function renderAll() { renderPeople(); renderFilters(); renderBases(); renderList(); renderSummary(); }
+function renderAll() { renderPeople(); renderBases(); renderList(); renderSummary(); }
 
 async function load(quiet) {
   try { data = await api(); renderAll(); if (!quiet) toast('最新にしました'); }
@@ -275,16 +252,15 @@ $('baseBox').addEventListener('click', e => {
   bases = bases.filter(id => id !== b.dataset.unbase); renderBases(); renderList();
 });
 
-['fTarget', 'fName', 'fYomi', 'fImi'].forEach(id => $(id).addEventListener('input', () => { $('formErr').hidden = true; }));
+['fName', 'fYomi', 'fImi'].forEach(id => $(id).addEventListener('input', () => { $('formErr').hidden = true; }));
 $('sendBtn').addEventListener('click', async () => {
   const name = $('fName').value.trim();
   const err = $('formErr');
   if (!who) { err.hidden = false; err.textContent = '先に「あなたは誰ですか」で自分の名前を選んでください'; return; }
-  if (!$('fTarget').value.trim()) { err.hidden = false; err.textContent = '何の名前かを入れてください'; return; }
   if (!name) { err.hidden = false; err.textContent = '候補名を入れてください'; return; }
   $('sendBtn').disabled = true;
   try {
-    data = await api({ action: 'add', who, target: $('fTarget').value.trim(), name, yomi: $('fYomi').value.trim(), imi: $('fImi').value.trim(), bases });
+    data = await api({ action: 'add', who, name, yomi: $('fYomi').value.trim(), imi: $('fImi').value.trim(), bases });
     $('fName').value = ''; $('fYomi').value = ''; $('fImi').value = ''; bases = [];
     renderAll(); toast('候補を出しました');
   } catch (e) { err.hidden = false; err.textContent = e.message; }
@@ -329,10 +305,6 @@ $('list').addEventListener('click', async e => {
   } catch (er) { toast(er.message); b.disabled = false; }
 });
 
-$('filters').addEventListener('click', e => {
-  const b = e.target.closest('[data-flt]'); if (!b) return;
-  filter = b.dataset.flt; renderFilters(); renderList();
-});
 $('reloadBtn').addEventListener('click', () => load(false));
 document.addEventListener('visibilitychange', () => { if (!document.hidden) load(true); });
 
